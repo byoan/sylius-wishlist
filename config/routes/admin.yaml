@@ -1,0 +1,27 @@
+byoan_sylius_wishlist_admin_wishlist:
+    resource: |
+        alias: byoan_sylius_wishlist.wishlist
+        section: admin
+        templates: "@SyliusAdmin\\shared\\crud"
+        only: ['index']
+        grid: byoan_sylius_wishlist_admin_wishlist
+        permission: true
+        vars:
+            all:
+                hook_prefix: byoan_sylius_wishlist.admin.wishlist
+    type: sylius.resource
+
+byoan_sylius_wishlist_admin_wishlist_show:
+    path: /wishlists/{id}
+    methods: [GET]
+    defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist::showAction
+        _sylius:
+            section: admin
+            permission: true
+            template: "@SyliusAdmin/shared/crud/show.html.twig"
+            repository:
+                method: findOneCustomerWishlist
+                arguments: [$id]
+            vars:
+                hook_prefix: byoan_sylius_wishlist.admin.wishlist

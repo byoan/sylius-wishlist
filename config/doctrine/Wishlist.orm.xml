@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<doctrine-mapping
+    xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping"
+    xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd"
+>
+    <mapped-superclass name="Byoan\SyliusWishlistPlugin\Entity\Wishlist" table="byoan_wishlist">
+        <unique-constraints>
+            <unique-constraint name="byoan_wishlist_customer_channel_default_unique" columns="customer_id,channel_id,is_default" />
+            <unique-constraint name="byoan_wishlist_customer_channel_name_unique" columns="customer_id,channel_id,name" />
+            <unique-constraint name="byoan_wishlist_token_channel_default_unique" columns="token,channel_id,is_default" />
+            <unique-constraint name="byoan_wishlist_token_channel_name_unique" columns="token,channel_id,name" />
+        </unique-constraints>
+
+        <id name="id" column="id" type="integer">
+            <generator strategy="AUTO" />
+        </id>
+
+        <field name="name" column="name" type="string" length="255" />
+        <field name="default" column="is_default" type="boolean" nullable="true" />
+        <field name="token" column="token" type="string" length="64" nullable="true" />
+        <field name="createdAt" column="created_at" type="datetime_immutable">
+            <gedmo:timestampable on="create" />
+        </field>
+        <field name="updatedAt" column="updated_at" type="datetime_immutable" nullable="true">
+            <gedmo:timestampable on="update" />
+        </field>
+
+        <one-to-many field="items" target-entity="Byoan\SyliusWishlistPlugin\Entity\WishlistItemInterface" mapped-by="wishlist" orphan-removal="true" fetch="EXTRA_LAZY">
+            <cascade>
+                <cascade-all />
+            </cascade>
+            <order-by>
+                <order-by-field name="createdAt" direction="DESC" />
+                <order-by-field name="id" direction="DESC" />
+            </order-by>
+        </one-to-many>
+
+        <many-to-one field="customer" target-entity="Sylius\Component\Customer\Model\CustomerInterface">
+            <join-column name="customer_id" referenced-column-name="id" nullable="true" on-delete="CASCADE" />
+        </many-to-one>
+
+        <many-to-one field="channel" target-entity="Sylius\Component\Channel\Model\ChannelInterface">
+            <join-column name="channel_id" referenced-column-name="id" nullable="false" on-delete="CASCADE" />
+        </many-to-one>
+    </mapped-superclass>
+</doctrine-mapping>

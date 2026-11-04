@@ -1,0 +1,86 @@
+{% import '@SyliusShop/shared/buttons.html.twig' as buttons %}
+
+{% set wishlist = hookable_metadata.context.wishlist %}
+
+<div class="container mb-5">
+    {% if wishlist.items.empty %}
+        <div {{ sylius_test_html_attribute('wishlist-empty') }}>
+            <p class="lead">{{ 'byoan_sylius_wishlist.ui.empty'|trans }}</p>
+            <a class="btn btn-primary" href="{{ path('sylius_shop_homepage') }}" {{ sylius_test_html_attribute('wishlist-continue-shopping') }}>{{ 'byoan_sylius_wishlist.ui.continue_shopping'|trans }}</a>
+        </div>
+    {% else %}
+        {% set selection_form = byoan_sylius_wishlist_selection_form(wishlist) %}
+        {% form_theme selection_form '@SyliusShop/form/theme.html.twig' %}
+        {% set selection_form_id = 'byoan-sylius-wishlist-selection' %}
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th class="w-1"><span class="visually-hidden">{{ 'byoan_sylius_wishlist.ui.select'|trans }}</span></th>
+                        <th colspan="2">{{ 'sylius.ui.product'|trans }}</th>
+                        <th>{{ 'sylius.ui.price'|trans }}</th>
+                        <th class="text-end">{{ 'sylius.ui.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in wishlist.items %}
+                        {% set variant = item.variant %}
+                        {% set product = variant.product %}
+                        {% set available = byoan_sylius_wishlist_is_available(variant) %}
+                        {% set checkbox = selection_form.variants.children|filter(child => child.vars.value == variant.code)|first %}
+                        {% set add_to_cart_form = byoan_sylius_wishlist_item_form('byoan_sylius_wishlist_shop_wishlist_item_add_to_cart', {id: item.id}) %}
+                        <tr {{ sylius_test_html_attribute('wishlist-item', variant.code) }}>
+                            <td>
+                                {% if checkbox %}
+                                    {{ form_widget(checkbox, {attr: {form: selection_form_id, 'aria-label': 'byoan_sylius_wishlist.ui.select'|trans ~ ' ' ~ product.name}}) }}
+                                {% endif %}
+                            </td>
+                            <td style="width: 6rem;">
+                                {{ component('sylius_shop:main_image', { product: product, class: 'img-fluid rounded-3' }) }}
+                            </td>
+                            <td>
+                                {% if byoan_sylius_wishlist_is_product_visible(variant) and product.slug %}
+                                    <a class="link-reset fw-medium" href="{{ path('sylius_shop_product_show', {slug: product.slug}) }}">{{ product.name|default(product.code) }}</a>
+                                {% else %}
+                                    <span class="fw-medium">{{ product.name|default(product.code) }}</span>
+                                {% endif %}
+                                {% if not product.simple %}
+                                    <div class="small text-body-secondary">{{ variant.name|default(variant.code) }}</div>
+                                {% endif %}
+                                {% if not available %}
+                                    <div><span class="badge text-bg-secondary" {{ sylius_test_html_attribute('wishlist-item-unavailable') }}>{{ 'byoan_sylius_wishlist.ui.unavailable'|trans }}</span></div>
+                                {% endif %}
+                            </td>
+                            <td {{ sylius_test_html_attribute('wishlist-item-price') }}>
+                                {% if byoan_sylius_wishlist_has_price(variant) %}
+                                    {{ component('sylius_shop:product:card:price', { variant: variant, template: '@SyliusShop/product/common/price.html.twig' }) }}
+                                {% else %}
+                                    {{ 'byoan_sylius_wishlist.ui.unavailable'|trans }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-end align-items-center gap-2">
+                                    {{ form_start(add_to_cart_form) }}
+                                        <button type="submit" class="btn btn-sm btn-primary text-nowrap" {{ not available ? 'disabled' }} {{ sylius_test_html_attribute('wishlist-item-add-to-cart') }}>
+                                            {{ 'byoan_sylius_wishlist.ui.add_to_cart'|trans }}
+                                        </button>
+                                    {{ form_end(add_to_cart_form) }}
+                                    {{ buttons.delete(path('byoan_sylius_wishlist_shop_wishlist_item_delete', {id: item.id}), 'byoan_sylius_wishlist.ui.remove', true, item.id) }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% do selection_form.variants.setRendered %}
+        {{ form_start(selection_form, {attr: {id: selection_form_id}}) }}
+            <button type="submit" class="btn btn-primary" {{ selection_form.variants.children is empty ? 'disabled' }} {{ sylius_test_html_attribute('wishlist-add-selected') }}>
+                {{ ux_icon('tabler:shopping-bag') }}
+                {{ 'byoan_sylius_wishlist.ui.add_selected_to_cart'|trans }}
+            </button>
+        {{ form_end(selection_form) }}
+    {% endif %}
+</div>

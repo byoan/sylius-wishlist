@@ -1,0 +1,20 @@
+{
+    "name": "byoan/sylius-wishlist-plugin",
+    "type": "sylius-plugin",
+    "description": "Wishlists for Sylius: customers and guests save product variants, per channel, and add them to the native cart.",
+    "keywords": ["sylius", "sylius-plugin", "wishlist"],
+    "require": {
+        "php": "^8.3",
+        "sylius/sylius": "^2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Byoan\\SyliusWishlistPlugin\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0-dev"
+        }
+    }
+}

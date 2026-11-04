@@ -1,0 +1,70 @@
+sylius_grid:
+    grids:
+        byoan_sylius_wishlist_admin_wishlist:
+            driver:
+                name: doctrine/orm
+                options:
+                    class: "%byoan_sylius_wishlist.model.wishlist.class%"
+                    repository:
+                        method: createCustomerListQueryBuilder
+            sorting:
+                createdAt: desc
+            fields:
+                name:
+                    type: string
+                    label: sylius.ui.name
+                    sortable: ~
+                customer:
+                    type: twig
+                    label: sylius.ui.customer
+                    sortable: customer.lastName
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/customer.html.twig"
+                channel:
+                    type: twig
+                    label: sylius.ui.channel
+                    sortable: channel.code
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/channel.html.twig"
+                items:
+                    type: twig
+                    label: byoan_sylius_wishlist.ui.items
+                    options:
+                        template: "@ByoanSyliusWishlistPlugin/admin/wishlist/grid/field/items.html.twig"
+                default:
+                    type: twig
+                    label: byoan_sylius_wishlist.ui.default
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/boolean.html.twig"
+                createdAt:
+                    type: twig
+                    label: sylius.ui.created_at
+                    sortable: ~
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/date.html.twig"
+                updatedAt:
+                    type: twig
+                    label: sylius.ui.updated_at
+                    sortable: ~
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/date.html.twig"
+            filters:
+                customer:
+                    type: string
+                    label: sylius.ui.customer
+                    options:
+                        fields: [customer.email, customer.firstName, customer.lastName]
+                name:
+                    type: string
+                    label: sylius.ui.name
+                channel:
+                    type: ux_autocomplete
+                    label: sylius.ui.channel
+                    form_options:
+                        extra_options:
+                            class: "%sylius.model.channel.class%"
+                            choice_label: name
+            actions:
+                item:
+                    show:
+                        type: show

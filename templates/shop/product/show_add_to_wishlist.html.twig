@@ -1,0 +1,5 @@
+{% set variant = hookable_metadata.context.variant|default(null) %}
+
+{% if variant is not null %}
+    {% include '@ByoanSyliusWishlistPlugin/shop/product/_add_button.html.twig' with { variant: variant, form_class: 'mb-4' } only %}
+{% endif %}

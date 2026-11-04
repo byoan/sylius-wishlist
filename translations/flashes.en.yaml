@@ -1,0 +1,11 @@
+byoan_sylius_wishlist:
+    item_added: The product has been added to your wishlist.
+    item_added_to_cart: The product has been added to your cart.
+    item_already_added: '"%name%" is already in your wishlist.'
+    item_not_addable: '"%name%" cannot be added to your wishlist.'
+    item_not_added_to_cart: '"%name%" could not be added to your cart. It may be unavailable or out of stock.'
+    item_removed: The product has been removed from your wishlist.
+    items_added_to_cart: 'Added to your cart: %names%.'
+    items_not_added_to_cart: 'Could not be added to your cart: %names%. They may be unavailable or out of stock.'
+    nothing_selected: Select at least one product to add to your cart.
+    selection_invalid: Your wishlist has changed. Please review it and try again.

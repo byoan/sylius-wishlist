@@ -1,0 +1,11 @@
+{% set count = byoan_sylius_wishlist_count() %}
+
+<div class="col-auto">
+    <a class="btn btn-icon btn-transparent px-0 position-relative" href="{{ path('byoan_sylius_wishlist_shop_wishlist_show') }}" aria-label="{{ 'byoan_sylius_wishlist.ui.my_wishlist'|trans }}" {{ sylius_test_html_attribute('wishlist-link') }}>
+        {{ ux_icon('tabler:heart') }}
+        <span class="d-none d-lg-block ps-1">{{ 'byoan_sylius_wishlist.ui.wishlist'|trans }}</span>
+        {% if count > 0 %}
+            <span class="position-absolute top-0 start-0 badge rounded-pill bg-primary" {{ sylius_test_html_attribute('wishlist-count', count) }}>{{ count }}</span>
+        {% endif %}
+    </a>
+</div>

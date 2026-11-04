@@ -1,0 +1,24 @@
+sylius_twig_hooks:
+    hooks:
+        'sylius_shop.base.header.content':
+            byoan_sylius_wishlist_link:
+                template: '@ByoanSyliusWishlistPlugin/shop/header/wishlist_link.html.twig'
+                priority: 150
+
+        'sylius_shop.product.show.content.info.summary':
+            byoan_sylius_wishlist_add:
+                template: '@ByoanSyliusWishlistPlugin/shop/product/show_add_to_wishlist.html.twig'
+                priority: 50
+
+        'sylius_shop.shared.product.card':
+            byoan_sylius_wishlist_add:
+                template: '@ByoanSyliusWishlistPlugin/shop/product/card_add_to_wishlist.html.twig'
+                priority: -100
+
+        'byoan_sylius_wishlist.shop.wishlist.show':
+            header:
+                template: '@ByoanSyliusWishlistPlugin/shop/wishlist/show/header.html.twig'
+                priority: 100
+            content:
+                template: '@ByoanSyliusWishlistPlugin/shop/wishlist/show/content.html.twig'
+                priority: 0

@@ -1,0 +1,62 @@
+{% import '@SyliusAdmin/shared/helper/money.html.twig' as money %}
+
+{% set wishlist = hookable_metadata.context.resource %}
+{% set channel = wishlist.channel %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ 'byoan_sylius_wishlist.ui.items'|trans }} ({{ wishlist.items.count }})</h3>
+    </div>
+    {% if wishlist.items.empty %}
+        <div class="card-body" {{ sylius_test_html_attribute('wishlist-empty') }}>{{ 'byoan_sylius_wishlist.ui.admin_empty'|trans }}</div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'sylius.ui.product'|trans }}</th>
+                        <th>{{ 'sylius.ui.variant'|trans }}</th>
+                        <th>{{ 'sylius.ui.code'|trans }}</th>
+                        <th>{{ 'sylius.ui.price'|trans }}</th>
+                        <th>{{ 'byoan_sylius_wishlist.ui.availability'|trans }}</th>
+                        <th>{{ 'byoan_sylius_wishlist.ui.added_at'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in wishlist.items %}
+                        {% set variant = item.variant %}
+                        {% set product = variant.product %}
+                        {% set image = product.images.first %}
+                        <tr {{ sylius_test_html_attribute('wishlist-item', variant.code) }}>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if image %}
+                                        <img class="rounded" width="40" src="{{ image.path|imagine_filter('sylius_admin_product_thumbnail') }}" alt="">
+                                    {% endif %}
+                                    <a href="{{ path('sylius_admin_product_show', {id: product.id}) }}">{{ product.name|default(product.code) }}</a>
+                                </div>
+                            </td>
+                            <td>{{ variant.name|default(variant.code) }}</td>
+                            <td>{{ variant.code }}</td>
+                            <td>
+                                {% if byoan_sylius_wishlist_has_price(variant, channel) %}
+                                    {{ money.format(variant.channelPricingForChannel(channel).price, channel.baseCurrency.code) }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if byoan_sylius_wishlist_is_available(variant, channel) %}
+                                    <span class="badge bg-green-lt">{{ 'byoan_sylius_wishlist.ui.available'|trans }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary-lt">{{ 'byoan_sylius_wishlist.ui.unavailable'|trans }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.createdAt|date }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>

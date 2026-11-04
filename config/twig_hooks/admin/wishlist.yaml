@@ -1,0 +1,16 @@
+sylius_twig_hooks:
+    hooks:
+        'byoan_sylius_wishlist.admin.wishlist.show.content':
+            summary:
+                template: '@ByoanSyliusWishlistPlugin/admin/wishlist/show/content/summary.html.twig'
+                priority: 50
+            items:
+                template: '@ByoanSyliusWishlistPlugin/admin/wishlist/show/content/items.html.twig'
+                priority: 0
+
+        'byoan_sylius_wishlist.admin.wishlist.show.content.header':
+            breadcrumbs:
+                template: '@SyliusAdmin/shared/crud/show/content/header/breadcrumbs.html.twig'
+                configuration:
+                    rendered_field: name
+                priority: 100

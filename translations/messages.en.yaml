@@ -1,0 +1,22 @@
+byoan_sylius_wishlist:
+    ui:
+        add_selected_to_cart: Add selected to cart
+        add_to_cart: Add to cart
+        add_to_wishlist: Add to wishlist
+        added_at: Added at
+        admin_empty: This wishlist is empty.
+        availability: Availability
+        available: Available
+        continue_shopping: Continue shopping
+        default: Default
+        default_wishlist_name: My wishlist
+        empty: Your wishlist is empty.
+        in_wishlist: In your wishlist
+        invalid_request: Your request could not be processed. Please try again.
+        items: Items
+        my_wishlist: My wishlist
+        remove: Remove
+        select: Select
+        unavailable: Unavailable
+        wishlist: Wishlist
+        wishlists: Wishlists

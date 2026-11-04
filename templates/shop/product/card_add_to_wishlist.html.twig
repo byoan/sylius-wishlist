@@ -1,0 +1,5 @@
+{% set variant = byoan_sylius_wishlist_listing_variant(hookable_metadata.context.product) %}
+
+{% if variant is not null %}
+    {% include '@ByoanSyliusWishlistPlugin/shop/product/_add_button.html.twig' with { variant: variant, form_class: 'mt-2' } only %}
+{% endif %}

@@ -1,0 +1,137 @@
+services:
+    _defaults:
+        public: false
+
+    byoan_sylius_wishlist.factory.default_wishlist:
+        class: Byoan\SyliusWishlistPlugin\Factory\DefaultWishlistFactory
+        arguments:
+            - '@byoan_sylius_wishlist.factory.wishlist'
+            - '@translator'
+    Byoan\SyliusWishlistPlugin\Factory\DefaultWishlistFactoryInterface: '@byoan_sylius_wishlist.factory.default_wishlist'
+
+    byoan_sylius_wishlist.custom_factory.wishlist_item:
+        class: Byoan\SyliusWishlistPlugin\Factory\WishlistItemFactory
+        decorates: byoan_sylius_wishlist.factory.wishlist_item
+        arguments:
+            - '@.inner'
+            - '@byoan_sylius_wishlist.context.wishlist'
+    Byoan\SyliusWishlistPlugin\Factory\WishlistItemFactoryInterface: '@byoan_sylius_wishlist.custom_factory.wishlist_item'
+
+    byoan_sylius_wishlist.context.guest_token_storage:
+        class: Byoan\SyliusWishlistPlugin\Context\SessionGuestTokenStorage
+        arguments:
+            - '@request_stack'
+    Byoan\SyliusWishlistPlugin\Context\GuestTokenStorageInterface: '@byoan_sylius_wishlist.context.guest_token_storage'
+
+    # Public: the routes call it through service() expressions.
+    byoan_sylius_wishlist.context.wishlist:
+        class: Byoan\SyliusWishlistPlugin\Context\WishlistContext
+        public: true
+        arguments:
+            - '@sylius.context.channel'
+            - '@sylius.context.customer'
+            - '@byoan_sylius_wishlist.context.guest_token_storage'
+            - '@byoan_sylius_wishlist.repository.wishlist'
+            - '@byoan_sylius_wishlist.factory.default_wishlist'
+        tags:
+            - { name: kernel.reset, method: reset }
+    Byoan\SyliusWishlistPlugin\Context\WishlistContextInterface: '@byoan_sylius_wishlist.context.wishlist'
+
+    # Public: the routes call it through service() expressions.
+    byoan_sylius_wishlist.provider.back_url:
+        class: Byoan\SyliusWishlistPlugin\Provider\BackUrlProvider
+        public: true
+        arguments:
+            - '@request_stack'
+            - '@router'
+
+    byoan_sylius_wishlist.checker.availability:
+        class: Byoan\SyliusWishlistPlugin\Checker\WishlistAvailabilityChecker
+        arguments:
+            - '@sylius.checker.inventory.availability'
+    Byoan\SyliusWishlistPlugin\Checker\WishlistAvailabilityCheckerInterface: '@byoan_sylius_wishlist.checker.availability'
+
+    byoan_sylius_wishlist.cart.adder:
+        class: Byoan\SyliusWishlistPlugin\Cart\WishlistCartAdder
+        arguments:
+            - '@sylius.context.cart'
+            - '@sylius.factory.order_item'
+            - '@sylius.modifier.order_item_quantity'
+            - '@sylius.factory.add_to_cart_command'
+            - '@sylius.adder.cart_item'
+            - '@validator'
+            - '@byoan_sylius_wishlist.checker.availability'
+            - '%sylius.form.type.add_to_cart.validation_groups%'
+    Byoan\SyliusWishlistPlugin\Cart\WishlistCartAdderInterface: '@byoan_sylius_wishlist.cart.adder'
+
+    byoan_sylius_wishlist.transfer.guest_wishlist:
+        class: Byoan\SyliusWishlistPlugin\Transfer\GuestWishlistTransfer
+        arguments:
+            - '@byoan_sylius_wishlist.context.guest_token_storage'
+            - '@byoan_sylius_wishlist.repository.wishlist'
+            - '@byoan_sylius_wishlist.factory.wishlist_item'
+    Byoan\SyliusWishlistPlugin\Transfer\GuestWishlistTransferInterface: '@byoan_sylius_wishlist.transfer.guest_wishlist'
+
+    Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemType:
+        arguments:
+            - '%byoan_sylius_wishlist.model.wishlist_item.class%'
+            - ['sylius']
+        tags:
+            - { name: form.type }
+
+    byoan_sylius_wishlist.form.factory:
+        class: Byoan\SyliusWishlistPlugin\Form\Factory\WishlistFormFactory
+        arguments:
+            - '@form.factory'
+            - '@router'
+            - '@sylius.context.locale'
+            - '@byoan_sylius_wishlist.checker.availability'
+    Byoan\SyliusWishlistPlugin\Form\Factory\WishlistFormFactoryInterface: '@byoan_sylius_wishlist.form.factory'
+
+    byoan_sylius_wishlist.listener.transfer_guest_wishlist_on_registration:
+        class: Byoan\SyliusWishlistPlugin\EventListener\TransferGuestWishlistOnRegistrationListener
+        arguments:
+            - '@byoan_sylius_wishlist.transfer.guest_wishlist'
+        tags:
+            # Runs before the core listener that may log the new customer in.
+            - { name: kernel.event_listener, event: sylius.customer.post_register, priority: 100 }
+
+    byoan_sylius_wishlist.listener.wishlist_item:
+        class: Byoan\SyliusWishlistPlugin\EventListener\WishlistItemListener
+        arguments:
+            - '@byoan_sylius_wishlist.checker.availability'
+            - '@byoan_sylius_wishlist.cart.adder'
+            - '@sylius.context.channel'
+        tags:
+            - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_create, method: preCreate }
+            - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_delete, method: preDelete }
+            - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_add_to_cart, method: preAddToCart }
+
+    byoan_sylius_wishlist.listener.admin_menu:
+        class: Byoan\SyliusWishlistPlugin\Menu\AdminMenuListener
+        tags:
+            - { name: kernel.event_listener, event: sylius.menu.admin.main }
+
+    byoan_sylius_wishlist.twig.extension:
+        class: Byoan\SyliusWishlistPlugin\Twig\WishlistExtension
+        tags: [twig.extension]
+
+    byoan_sylius_wishlist.twig.runtime:
+        class: Byoan\SyliusWishlistPlugin\Twig\WishlistRuntime
+        arguments:
+            - '@byoan_sylius_wishlist.context.wishlist'
+            - '@byoan_sylius_wishlist.form.factory'
+            - '@byoan_sylius_wishlist.checker.availability'
+            - '@sylius.resolver.product_variant'
+            - '@sylius.context.channel'
+        tags: [twig.runtime]
+
+    byoan_sylius_wishlist.controller.shop.add_selected_items_to_cart:
+        class: Byoan\SyliusWishlistPlugin\Controller\Shop\AddSelectedItemsToCartAction
+        public: true
+        arguments:
+            - '@byoan_sylius_wishlist.context.wishlist'
+            - '@byoan_sylius_wishlist.cart.adder'
+            - '@byoan_sylius_wishlist.form.factory'
+            - '@sylius.context.channel'
+            - '@router'

@@ -1,0 +1,9 @@
+{% set form = byoan_sylius_wishlist_item_form('byoan_sylius_wishlist_shop_wishlist_item_create', {variantCode: variant.code}) %}
+{% set in_wishlist = byoan_sylius_wishlist_contains(variant) %}
+
+{{ form_start(form, {attr: {class: form_class|default('')}}) }}
+    <button type="submit" class="btn btn-sm {{ in_wishlist ? 'btn-primary' : 'btn-outline-primary' }}" {{ sylius_test_html_attribute('add-to-wishlist', variant.code) }}>
+        {{ ux_icon(in_wishlist ? 'tabler:heart-filled' : 'tabler:heart') }}
+        {{ (in_wishlist ? 'byoan_sylius_wishlist.ui.in_wishlist' : 'byoan_sylius_wishlist.ui.add_to_wishlist')|trans }}
+    </button>
+{{ form_end(form) }}

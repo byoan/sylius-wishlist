@@ -1,0 +1,21 @@
+{% set wishlist = hookable_metadata.context.resource %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="fw-medium">{{ 'sylius.ui.customer'|trans }}</div>
+                <a href="{{ path('sylius_admin_customer_show', {id: wishlist.customer.id}) }}">{{ wishlist.customer.fullName|default(wishlist.customer.email) }}</a>
+                <div class="text-secondary">{{ wishlist.customer.email }}</div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="fw-medium">{{ 'sylius.ui.channel'|trans }}</div>
+                {{ wishlist.channel.name|default(wishlist.channel.code) }}
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="fw-medium">{{ 'sylius.ui.created_at'|trans }}</div>
+                {{ wishlist.createdAt|date }}
+            </div>
+        </div>
+    </div>
+</div>
