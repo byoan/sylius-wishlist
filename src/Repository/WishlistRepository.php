@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Byoan\SyliusWishlistPlugin\Repository;
 
-use Byoan\SyliusWishlistPlugin\Entity\WishlistInterface;
 use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
 use Sylius\Component\Channel\Model\ChannelInterface;
@@ -37,18 +36,15 @@ class WishlistRepository extends EntityRepository implements WishlistRepositoryI
         return $this->findBy(['token' => $token]);
     }
 
-    public function createCustomerListQueryBuilder(): QueryBuilder
+    /**
+     * The left join keeps guest wishlists listed: when sorting or filtering on a customer field, the
+     * grid reuses an existing join but would otherwise add an inner one.
+     */
+    public function createAdminListQueryBuilder(): QueryBuilder
     {
-        return $this->createQueryBuilder('o')->andWhere('o.customer IS NOT NULL');
-    }
-
-    public function findOneCustomerWishlist(mixed $id): ?WishlistInterface
-    {
-        return $this->createCustomerListQueryBuilder()
-            ->andWhere('o.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery()
-            ->getOneOrNullResult()
+        return $this->createQueryBuilder('o')
+            ->addSelect('customer')
+            ->leftJoin('o.customer', 'customer')
         ;
     }
 

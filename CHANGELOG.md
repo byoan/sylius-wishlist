@@ -9,7 +9,7 @@ interfaces, service ids, route names, Twig hook names and configuration keys.
 - Add to wishlist from the product page and product listings.
 - Wishlist page: remove, add one product to the cart, or add a selection to the cart.
 - Guest wishlists are assigned to the customer on registration.
-- Read-only admin grid and detail page for customer wishlists.
+- Read-only admin grid and detail page for customer and guest wishlists.
 - Multiple named wishlists for customers and guests: create, view, rename and delete.
 - Choose the destination wishlist when adding a product, and move products between wishlists.
 - Change which wishlist is the default.

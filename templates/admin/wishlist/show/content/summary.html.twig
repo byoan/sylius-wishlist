@@ -5,8 +5,12 @@
         <div class="row g-3">
             <div class="col-12 col-md-4">
                 <div class="fw-medium">{{ 'sylius.ui.customer'|trans }}</div>
-                <a href="{{ path('sylius_admin_customer_show', {id: wishlist.customer.id}) }}">{{ wishlist.customer.fullName|default(wishlist.customer.email) }}</a>
-                <div class="text-secondary">{{ wishlist.customer.email }}</div>
+                {% if wishlist.customer %}
+                    <a href="{{ path('sylius_admin_customer_show', {id: wishlist.customer.id}) }}">{{ wishlist.customer.fullName|default(wishlist.customer.email) }}</a>
+                    <div class="text-secondary">{{ wishlist.customer.email }}</div>
+                {% else %}
+                    <span class="badge bg-secondary-lt">{{ 'sylius.ui.guest'|trans }}</span>
+                {% endif %}
             </div>
             <div class="col-12 col-md-4">
                 <div class="fw-medium">{{ 'sylius.ui.channel'|trans }}</div>

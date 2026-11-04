@@ -2,7 +2,7 @@
 
 Lets customers and guests save product variants to a wishlist from the product page and product
 listings, then add them to the native Sylius cart. Administrators get a read-only view of customer
-wishlists.
+and guest wishlists.
 
 Requires PHP 8.3+ and Sylius 2.3+. Migrations target MySQL and MariaDB.
 
@@ -53,7 +53,7 @@ No core entity has to be extended and no core template is overridden.
 - **Customer wishlists** are stored in the database.
 - **Guest wishlists** are stored in the database too, without a customer and with a random token.
   The Symfony session holds only that token, so a guest keeps access for as long as the session
-  lasts. Administrators do not see these wishlists.
+  lasts. Administrators see these wishlists marked as guest, without the token.
 - **On registration**, guest wishlists are assigned to the new customer, and the token is removed
   from the wishlists and the session. Logging in to an existing account does not move them.
 - **Shop routes** use the native resource controller, configured in `config/routes/shop.yaml`, with

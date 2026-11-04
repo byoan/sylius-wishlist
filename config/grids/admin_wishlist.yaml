@@ -6,7 +6,7 @@ sylius_grid:
                 options:
                     class: "%byoan_sylius_wishlist.model.wishlist.class%"
                     repository:
-                        method: createCustomerListQueryBuilder
+                        method: createAdminListQueryBuilder
             sorting:
                 createdAt: desc
             fields:
@@ -19,7 +19,7 @@ sylius_grid:
                     label: sylius.ui.customer
                     sortable: customer.lastName
                     options:
-                        template: "@SyliusAdmin/shared/grid/field/customer.html.twig"
+                        template: "@ByoanSyliusWishlistPlugin/admin/wishlist/grid/field/customer.html.twig"
                 channel:
                     type: twig
                     label: sylius.ui.channel

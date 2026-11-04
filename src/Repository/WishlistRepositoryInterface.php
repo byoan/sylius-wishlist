@@ -22,7 +22,5 @@ interface WishlistRepositoryInterface extends RepositoryInterface
     /** @return list<WishlistInterface> */
     public function findByToken(string $token): array;
 
-    public function createCustomerListQueryBuilder(): QueryBuilder;
-
-    public function findOneCustomerWishlist(mixed $id): ?WishlistInterface;
+    public function createAdminListQueryBuilder(): QueryBuilder;
 }

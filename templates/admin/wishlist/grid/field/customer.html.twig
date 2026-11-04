@@ -1,0 +1,5 @@
+{% if data %}
+    {% include '@SyliusAdmin/shared/grid/field/customer.html.twig' %}
+{% else %}
+    <span class="badge bg-secondary-lt">{{ 'sylius.ui.guest'|trans }}</span>
+{% endif %}
