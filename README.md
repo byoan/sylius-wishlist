@@ -45,8 +45,11 @@ No core entity has to be extended and no core template is overridden.
 ## How it works
 
 - A wishlist belongs to one channel and holds product variants, each at most once.
-- The data model supports several named wishlists per customer and channel. In this version, every
-  action uses the default wishlist.
+- A shopper can have several named wishlists per channel. Each one holds its own products, and the
+  same product can be in several wishlists.
+- One wishlist is the default. It is created on first use and is the target of the add button. The
+  shopper can make another wishlist the default. The current default can be renamed but not deleted.
+  A dropdown next to the button lists the shopper's other wishlists.
 - **Customer wishlists** are stored in the database.
 - **Guest wishlists** are stored in the database too, without a customer and with a random token.
   The Symfony session holds only that token, so a guest keeps access for as long as the session

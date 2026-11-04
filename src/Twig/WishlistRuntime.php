@@ -7,6 +7,7 @@ namespace Byoan\SyliusWishlistPlugin\Twig;
 use Byoan\SyliusWishlistPlugin\Checker\WishlistAvailabilityCheckerInterface;
 use Byoan\SyliusWishlistPlugin\Context\WishlistContextInterface;
 use Byoan\SyliusWishlistPlugin\Entity\WishlistInterface;
+use Byoan\SyliusWishlistPlugin\Entity\WishlistItemInterface;
 use Byoan\SyliusWishlistPlugin\Form\Factory\WishlistFormFactoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
@@ -27,9 +28,42 @@ final readonly class WishlistRuntime implements RuntimeExtensionInterface
     ) {
     }
 
+    /** @return list<WishlistInterface> */
+    public function lists(): array
+    {
+        return $this->wishlistContext->getWishlists();
+    }
+
+    /** @return list<WishlistInterface> */
+    public function otherLists(): array
+    {
+        return array_values(array_filter(
+            $this->wishlistContext->getWishlists(),
+            static fn (WishlistInterface $wishlist): bool => !$wishlist->isDefault(),
+        ));
+    }
+
+    public function createForm(): FormView
+    {
+        return $this->formFactory->createWishlistForm()->createView();
+    }
+
+    public function setDefaultForm(WishlistInterface $wishlist): FormView
+    {
+        return $this->formFactory->createSetDefaultForm($wishlist)->createView();
+    }
+
+    public function moveForm(WishlistItemInterface $item): FormView
+    {
+        return $this->formFactory->createMoveForm($item)->createView();
+    }
+
     public function count(): int
     {
-        return $this->wishlistContext->getWishlist()->getItems()->count();
+        return array_sum(array_map(
+            static fn (WishlistInterface $wishlist): int => $wishlist->getItems()->count(),
+            $this->wishlistContext->getWishlists(),
+        ));
     }
 
     public function contains(ProductVariantInterface $variant): bool

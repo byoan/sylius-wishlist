@@ -10,7 +10,6 @@ use Byoan\SyliusWishlistPlugin\Entity\WishlistItemInterface;
 use Byoan\SyliusWishlistPlugin\Repository\WishlistRepositoryInterface;
 use Sylius\Component\Customer\Model\CustomerInterface;
 use Sylius\Resource\Factory\FactoryInterface;
-use Webmozart\Assert\Assert;
 
 final readonly class GuestWishlistTransfer implements GuestWishlistTransferInterface
 {
@@ -30,7 +29,7 @@ final readonly class GuestWishlistTransfer implements GuestWishlistTransferInter
         }
 
         foreach ($this->wishlistRepository->findByToken($token) as $wishlist) {
-            $existing = $this->findCustomerDefaultWishlist($customer, $wishlist);
+            $existing = $this->findMatchingCustomerWishlist($customer, $wishlist);
 
             if (null === $existing) {
                 $wishlist->setCustomer($customer);
@@ -49,15 +48,13 @@ final readonly class GuestWishlistTransfer implements GuestWishlistTransferInter
         $this->guestTokenStorage->clear();
     }
 
-    /** A customer can only have one default wishlist per channel, so a second one is merged. */
-    private function findCustomerDefaultWishlist(CustomerInterface $customer, WishlistInterface $wishlist): ?WishlistInterface
+    /** A customer's default wishlist, or the one of the same name, is merged into rather than duplicated. */
+    private function findMatchingCustomerWishlist(CustomerInterface $customer, WishlistInterface $wishlist): ?WishlistInterface
     {
-        $channel = $wishlist->getChannel();
-        Assert::notNull($channel);
+        $criteria = ['customer' => $customer, 'channel' => $wishlist->getChannel()];
+        $criteria += $wishlist->isDefault() ? ['default' => true] : ['name' => $wishlist->getName()];
 
-        return $wishlist->isDefault()
-            ? $this->wishlistRepository->findDefaultByCustomerAndChannel($customer, $channel)
-            : null;
+        return $this->wishlistRepository->findOneBy($criteria);
     }
 
     private function mergeItems(WishlistInterface $from, WishlistInterface $to): void

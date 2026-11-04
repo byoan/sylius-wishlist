@@ -12,23 +12,23 @@ use Sylius\Component\Customer\Model\CustomerInterface;
 
 class WishlistRepository extends EntityRepository implements WishlistRepositoryInterface
 {
-    public function findDefaultByCustomerAndChannel(CustomerInterface $customer, ChannelInterface $channel): ?WishlistInterface
+    public function findByCustomerAndChannel(CustomerInterface $customer, ChannelInterface $channel): array
     {
-        return $this->createDefaultWithItemsQueryBuilder($channel)
+        return $this->createWithItemsQueryBuilder($channel)
             ->andWhere('o.customer = :customer')
             ->setParameter('customer', $customer)
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
     }
 
-    public function findDefaultByTokenAndChannel(string $token, ChannelInterface $channel): ?WishlistInterface
+    public function findByTokenAndChannel(string $token, ChannelInterface $channel): array
     {
-        return $this->createDefaultWithItemsQueryBuilder($channel)
+        return $this->createWithItemsQueryBuilder($channel)
             ->andWhere('o.token = :token')
             ->setParameter('token', $token)
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
     }
 
@@ -52,7 +52,7 @@ class WishlistRepository extends EntityRepository implements WishlistRepositoryI
         ;
     }
 
-    private function createDefaultWithItemsQueryBuilder(ChannelInterface $channel): QueryBuilder
+    private function createWithItemsQueryBuilder(ChannelInterface $channel): QueryBuilder
     {
         return $this->createQueryBuilder('o')
             ->addSelect('item', 'variant', 'product')
@@ -60,8 +60,9 @@ class WishlistRepository extends EntityRepository implements WishlistRepositoryI
             ->leftJoin('item.variant', 'variant')
             ->leftJoin('variant.product', 'product')
             ->andWhere('o.channel = :channel')
-            ->andWhere('o.default = true')
             ->setParameter('channel', $channel)
+            ->addOrderBy('o.createdAt', 'ASC')
+            ->addOrderBy('o.id', 'ASC')
         ;
     }
 }

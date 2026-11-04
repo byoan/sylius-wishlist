@@ -12,6 +12,7 @@
         {% set selection_form = byoan_sylius_wishlist_selection_form(wishlist) %}
         {% form_theme selection_form '@SyliusShop/form/theme.html.twig' %}
         {% set selection_form_id = 'byoan-sylius-wishlist-selection' %}
+        {% set has_other_lists = byoan_sylius_wishlist_lists()|length > 1 %}
 
         <div class="table-responsive">
             <table class="table align-middle">
@@ -66,6 +67,14 @@
                                             {{ 'byoan_sylius_wishlist.ui.add_to_cart'|trans }}
                                         </button>
                                     {{ form_end(add_to_cart_form) }}
+                                    {% if has_other_lists %}
+                                        {% set move_form = byoan_sylius_wishlist_move_form(item) %}
+                                        {% form_theme move_form '@SyliusShop/form/theme.html.twig' %}
+                                        {{ form_start(move_form, {attr: {class: 'd-flex align-items-center gap-1'}}) }}
+                                            {{ form_widget(move_form.wishlist, {attr: {class: 'form-select form-select-sm', 'aria-label': 'byoan_sylius_wishlist.ui.move_to'|trans}}) }}
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" {{ sylius_test_html_attribute('wishlist-item-move') }}>{{ 'byoan_sylius_wishlist.ui.move'|trans }}</button>
+                                        {{ form_end(move_form) }}
+                                    {% endif %}
                                     {{ buttons.delete(path('byoan_sylius_wishlist_shop_wishlist_item_delete', {id: item.id}), 'byoan_sylius_wishlist.ui.remove', true, item.id) }}
                                 </div>
                             </td>

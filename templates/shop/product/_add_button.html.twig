@@ -1,9 +1,28 @@
 {% set form = byoan_sylius_wishlist_item_form('byoan_sylius_wishlist_shop_wishlist_item_create', {variantCode: variant.code}) %}
 {% set in_wishlist = byoan_sylius_wishlist_contains(variant) %}
+{% set other_lists = byoan_sylius_wishlist_other_lists() %}
+{% set button_class = in_wishlist ? 'btn-primary' : 'btn-outline-primary' %}
 
 {{ form_start(form, {attr: {class: form_class|default('')}}) }}
-    <button type="submit" class="btn btn-sm {{ in_wishlist ? 'btn-primary' : 'btn-outline-primary' }}" {{ sylius_test_html_attribute('add-to-wishlist', variant.code) }}>
-        {{ ux_icon(in_wishlist ? 'tabler:heart-filled' : 'tabler:heart') }}
-        {{ (in_wishlist ? 'byoan_sylius_wishlist.ui.in_wishlist' : 'byoan_sylius_wishlist.ui.add_to_wishlist')|trans }}
-    </button>
+    <div class="btn-group">
+        <button type="submit" class="btn btn-sm {{ button_class }}" {{ sylius_test_html_attribute('add-to-wishlist', variant.code) }}>
+            {{ ux_icon(in_wishlist ? 'tabler:heart-filled' : 'tabler:heart') }}
+            {{ (in_wishlist ? 'byoan_sylius_wishlist.ui.in_wishlist' : 'byoan_sylius_wishlist.ui.add_to_wishlist')|trans }}
+        </button>
+        {% if other_lists is not empty %}
+            <button type="button" class="btn btn-sm {{ button_class }} dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" {{ sylius_test_html_attribute('add-to-wishlist-toggle', variant.code) }}>
+                <span class="visually-hidden">{{ 'byoan_sylius_wishlist.ui.more_wishlists'|trans }}</span>
+            </button>
+            <ul class="dropdown-menu">
+                {% for wishlist in other_lists %}
+                    <li>
+                        <button type="submit" class="dropdown-item d-flex justify-content-between align-items-center gap-3" formaction="{{ path('byoan_sylius_wishlist_shop_wishlist_item_create_in_wishlist', {wishlistId: wishlist.id, variantCode: variant.code, _locale: sylius.localeCode}) }}" {{ sylius_test_html_attribute('add-to-wishlist-target', wishlist.name) }}>
+                            {{ wishlist.name }}
+                            {% if wishlist.hasVariant(variant) %}{{ ux_icon('tabler:heart-filled') }}{% endif %}
+                        </button>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
 {{ form_end(form) }}

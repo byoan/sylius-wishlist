@@ -9,9 +9,10 @@ use Byoan\SyliusWishlistPlugin\Entity\WishlistInterface;
 use Byoan\SyliusWishlistPlugin\Entity\WishlistItem;
 use Byoan\SyliusWishlistPlugin\Entity\WishlistItemInterface;
 use Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemType;
-use Byoan\SyliusWishlistPlugin\Repository\WishlistItemRepository;
+use Byoan\SyliusWishlistPlugin\Form\Type\WishlistType;
 use Byoan\SyliusWishlistPlugin\Repository\WishlistRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
 use Sylius\Resource\Factory\Factory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -32,13 +33,13 @@ final class Configuration implements ConfigurationInterface
                     ->children()
         ;
 
-        $this->addResource($resources->arrayNode('wishlist'), Wishlist::class, WishlistInterface::class, WishlistRepository::class);
-        $this->addResource($resources->arrayNode('wishlist_item'), WishlistItem::class, WishlistItemInterface::class, WishlistItemRepository::class, WishlistItemType::class);
+        $this->addResource($resources->arrayNode('wishlist'), Wishlist::class, WishlistInterface::class, WishlistRepository::class, WishlistType::class);
+        $this->addResource($resources->arrayNode('wishlist_item'), WishlistItem::class, WishlistItemInterface::class, EntityRepository::class, WishlistItemType::class);
 
         return $treeBuilder;
     }
 
-    private function addResource(ArrayNodeDefinition $node, string $model, string $interface, string $repository, ?string $form = null): void
+    private function addResource(ArrayNodeDefinition $node, string $model, string $interface, string $repository, string $form): void
     {
         $node
             ->addDefaultsIfNotSet()

@@ -1,0 +1,18 @@
+{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+
+{% set is_update = wishlist.id is not null %}
+{% set heading = is_update ? 'byoan_sylius_wishlist.ui.rename_wishlist' : 'byoan_sylius_wishlist.ui.create_wishlist' %}
+
+{% block title %}{{ heading|trans }} | {{ parent() }}{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <h1 class="mb-4">{{ heading|trans }}</h1>
+
+        {{ form_start(form, {method: is_update ? 'PUT' : 'POST', attr: {novalidate: 'novalidate', class: 'col-12 col-md-6 mb-4'}}) }}
+            {% include '@ByoanSyliusWishlistPlugin/shop/wishlist/_form_fields.html.twig' with { form: form, submit_label: is_update ? 'byoan_sylius_wishlist.ui.rename' : 'byoan_sylius_wishlist.ui.create_wishlist' } only %}
+        {{ form_end(form) }}
+
+        <a href="{{ path('byoan_sylius_wishlist_shop_wishlist_index') }}">{{ 'byoan_sylius_wishlist.ui.my_wishlists'|trans }}</a>
+    </div>
+{% endblock %}

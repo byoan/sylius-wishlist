@@ -11,16 +11,19 @@ use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
 use Sylius\Resource\Symfony\EventDispatcher\GenericEvent;
 use Webmozart\Assert\Assert;
 
 /** Business rules around the resource controller's wishlist item actions. */
 final readonly class WishlistItemListener
 {
+    /** @param RepositoryInterface<WishlistItemInterface> $wishlistItemRepository */
     public function __construct(
         private WishlistAvailabilityCheckerInterface $availabilityChecker,
         private WishlistCartAdderInterface $cartAdder,
         private ChannelContextInterface $channelContext,
+        private RepositoryInterface $wishlistItemRepository,
     ) {
     }
 
@@ -51,6 +54,26 @@ final readonly class WishlistItemListener
         $item = $this->getItem($event);
 
         $item->getWishlist()?->removeItem($item);
+    }
+
+    /**
+     * The form has already set the target wishlist on the item. If the target holds the product
+     * already, the source entry is dropped: the product still ends up only in the target.
+     */
+    public function preMove(ResourceControllerEvent $event): void
+    {
+        $item = $this->getItem($event);
+        $target = $item->getWishlist();
+        Assert::notNull($target);
+
+        if ($target->hasVariant($this->getVariant($item))) {
+            $this->wishlistItemRepository->remove($item);
+            $event->stop('byoan_sylius_wishlist.item_moved_already_present', GenericEvent::TYPE_SUCCESS);
+
+            return;
+        }
+
+        $target->setUpdatedAt(new \DateTimeImmutable());
     }
 
     public function preAddToCart(ResourceControllerEvent $event): void

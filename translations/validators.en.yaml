@@ -1,0 +1,6 @@
+byoan_sylius_wishlist:
+    wishlist:
+        name:
+            max_length: The wishlist name cannot be longer than {{ limit }} characters.
+            not_blank: Please enter a wishlist name.
+            unique: You already have a wishlist with this name.

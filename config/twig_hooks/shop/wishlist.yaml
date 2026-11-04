@@ -22,3 +22,14 @@ sylius_twig_hooks:
             content:
                 template: '@ByoanSyliusWishlistPlugin/shop/wishlist/show/content.html.twig'
                 priority: 0
+
+        'byoan_sylius_wishlist.shop.wishlist.index':
+            header:
+                template: '@ByoanSyliusWishlistPlugin/shop/wishlist/index/header.html.twig'
+                priority: 200
+            create_form:
+                template: '@ByoanSyliusWishlistPlugin/shop/wishlist/index/create_form.html.twig'
+                priority: 100
+            lists:
+                template: '@ByoanSyliusWishlistPlugin/shop/wishlist/index/lists.html.twig'
+                priority: 0

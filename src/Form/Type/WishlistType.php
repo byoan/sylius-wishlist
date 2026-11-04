@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Byoan\SyliusWishlistPlugin\Form\Type;
+
+use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+
+final class WishlistType extends AbstractResourceType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        parent::buildForm($builder, $options);
+
+        $builder->add('name', TextType::class, [
+            'label' => 'byoan_sylius_wishlist.ui.name',
+        ]);
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return 'byoan_sylius_wishlist_wishlist';
+    }
+}

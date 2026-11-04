@@ -6,8 +6,12 @@ namespace Byoan\SyliusWishlistPlugin\Form\Factory;
 
 use Byoan\SyliusWishlistPlugin\Checker\WishlistAvailabilityCheckerInterface;
 use Byoan\SyliusWishlistPlugin\Entity\WishlistInterface;
+use Byoan\SyliusWishlistPlugin\Entity\WishlistItemInterface;
+use Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemMoveType;
 use Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemType;
 use Byoan\SyliusWishlistPlugin\Form\Type\WishlistSelectionType;
+use Byoan\SyliusWishlistPlugin\Form\Type\WishlistSetDefaultType;
+use Byoan\SyliusWishlistPlugin\Form\Type\WishlistType;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Locale\Context\LocaleContextInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -31,6 +35,29 @@ final readonly class WishlistFormFactory implements WishlistFormFactoryInterface
         ]);
     }
 
+    public function createWishlistForm(): FormInterface
+    {
+        return $this->formFactory->create(WishlistType::class, null, [
+            'action' => $this->generateUrl('byoan_sylius_wishlist_shop_wishlist_create'),
+        ]);
+    }
+
+    public function createSetDefaultForm(WishlistInterface $wishlist): FormInterface
+    {
+        return $this->formFactory->create(WishlistSetDefaultType::class, $wishlist, [
+            'action' => $this->generateUrl('byoan_sylius_wishlist_shop_wishlist_set_as_default', ['id' => $wishlist->getId()]),
+            'method' => 'PATCH',
+        ]);
+    }
+
+    public function createMoveForm(WishlistItemInterface $item): FormInterface
+    {
+        return $this->formFactory->create(WishlistItemMoveType::class, $item, [
+            'action' => $this->generateUrl('byoan_sylius_wishlist_shop_wishlist_item_move', ['id' => $item->getId()]),
+            'method' => 'PUT',
+        ]);
+    }
+
     public function createSelectionForm(WishlistInterface $wishlist, ChannelInterface $channel): FormInterface
     {
         $codes = [];
@@ -43,7 +70,7 @@ final readonly class WishlistFormFactory implements WishlistFormFactoryInterface
 
         return $this->formFactory->create(WishlistSelectionType::class, null, [
             'variant_codes' => $codes,
-            'action' => $this->generateUrl('byoan_sylius_wishlist_shop_wishlist_add_selected_to_cart'),
+            'action' => $this->generateUrl('byoan_sylius_wishlist_shop_wishlist_add_selected_to_cart', ['id' => $wishlist->getId()]),
         ]);
     }
 

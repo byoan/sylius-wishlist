@@ -1,4 +1,6 @@
-byoan_sylius_wishlist_shop_wishlist_show:
+# Wishlists
+
+byoan_sylius_wishlist_shop_wishlist_show_default:
     path: /wishlist
     methods: [GET]
     defaults:
@@ -9,11 +11,108 @@ byoan_sylius_wishlist_shop_wishlist_show:
             repository:
                 method: ["expr:service('byoan_sylius_wishlist.context.wishlist')", getWishlist]
 
-byoan_sylius_wishlist_shop_wishlist_add_selected_to_cart:
-    path: /wishlist/add-selected-to-cart
+byoan_sylius_wishlist_shop_wishlist_index:
+    path: /wishlists
+    methods: [GET]
+    defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist::indexAction
+        _sylius:
+            section: shop
+            template: "@ByoanSyliusWishlistPlugin/shop/wishlist/index.html.twig"
+            paginate: false
+            repository:
+                method: ["expr:service('byoan_sylius_wishlist.context.wishlist')", getWishlists]
+
+byoan_sylius_wishlist_shop_wishlist_create:
+    path: /wishlists
     methods: [POST]
     defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist::createAction
+        _sylius:
+            section: shop
+            form: Byoan\SyliusWishlistPlugin\Form\Type\WishlistType
+            template: "@ByoanSyliusWishlistPlugin/shop/wishlist/form.html.twig"
+            factory:
+                method: ["expr:service('byoan_sylius_wishlist.context.wishlist')", createWishlist]
+            redirect:
+                route: byoan_sylius_wishlist_shop_wishlist_show
+                parameters:
+                    id: resource.id
+            flash: byoan_sylius_wishlist.wishlist_created
+
+byoan_sylius_wishlist_shop_wishlist_show:
+    path: /wishlists/{id}
+    methods: [GET]
+    requirements:
+        id: \d+
+    defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist::showAction
+        _sylius:
+            section: shop
+            template: "@ByoanSyliusWishlistPlugin/shop/wishlist/show.html.twig"
+            repository: &owned_wishlist
+                method: ["expr:service('byoan_sylius_wishlist.context.wishlist')", getOwnedWishlist]
+                arguments:
+                    - $id
+
+byoan_sylius_wishlist_shop_wishlist_update:
+    path: /wishlists/{id}/edit
+    methods: [GET, PUT]
+    requirements:
+        id: \d+
+    defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist::updateAction
+        _sylius:
+            section: shop
+            form: Byoan\SyliusWishlistPlugin\Form\Type\WishlistType
+            template: "@ByoanSyliusWishlistPlugin/shop/wishlist/form.html.twig"
+            repository: *owned_wishlist
+            redirect:
+                route: byoan_sylius_wishlist_shop_wishlist_show
+                parameters:
+                    id: resource.id
+            flash: byoan_sylius_wishlist.wishlist_renamed
+
+byoan_sylius_wishlist_shop_wishlist_delete:
+    path: /wishlists/{id}
+    methods: [DELETE]
+    requirements:
+        id: \d+
+    defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist::deleteAction
+        _sylius:
+            section: shop
+            repository: *owned_wishlist
+            redirect: byoan_sylius_wishlist_shop_wishlist_index
+            flash: byoan_sylius_wishlist.wishlist_deleted
+
+byoan_sylius_wishlist_shop_wishlist_set_as_default:
+    path: /wishlists/{id}/set-as-default
+    methods: [PATCH]
+    requirements:
+        id: \d+
+    defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist::updateAction
+        _sylius:
+            section: shop
+            event: set_as_default
+            form: Byoan\SyliusWishlistPlugin\Form\Type\WishlistSetDefaultType
+            template: "@ByoanSyliusWishlistPlugin/shop/wishlist/invalid_request.html.twig"
+            repository: *owned_wishlist
+            redirect:
+                route: byoan_sylius_wishlist_shop_wishlist_index
+                parameters: {}
+            flash: byoan_sylius_wishlist.wishlist_set_as_default
+
+byoan_sylius_wishlist_shop_wishlist_add_selected_to_cart:
+    path: /wishlists/{id}/add-selected-to-cart
+    methods: [POST]
+    requirements:
+        id: \d+
+    defaults:
         _controller: byoan_sylius_wishlist.controller.shop.add_selected_items_to_cart
+
+# Wishlist items
 
 byoan_sylius_wishlist_shop_wishlist_item_create:
     path: /wishlist/items/{variantCode}
@@ -28,28 +127,50 @@ byoan_sylius_wishlist_shop_wishlist_item_create:
                 method: createForVariant
                 arguments:
                     - "expr:notFoundOnNull(service('sylius.repository.product_variant').findOneBy({'code': $variantCode}))"
-            redirect:
+            redirect: &back
                 referer: "expr:service('byoan_sylius_wishlist.provider.back_url').getUrl()"
+            flash: byoan_sylius_wishlist.item_added
+
+byoan_sylius_wishlist_shop_wishlist_item_create_in_wishlist:
+    path: /wishlists/{wishlistId}/items/{variantCode}
+    methods: [POST]
+    requirements:
+        wishlistId: \d+
+    defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist_item::createAction
+        _sylius:
+            section: shop
+            form: Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemType
+            template: "@ByoanSyliusWishlistPlugin/shop/wishlist/invalid_request.html.twig"
+            factory:
+                method: createForVariant
+                arguments:
+                    - "expr:notFoundOnNull(service('sylius.repository.product_variant').findOneBy({'code': $variantCode}))"
+                    - "expr:notFoundOnNull(service('byoan_sylius_wishlist.context.wishlist').getOwnedWishlist($wishlistId))"
+            redirect: *back
             flash: byoan_sylius_wishlist.item_added
 
 byoan_sylius_wishlist_shop_wishlist_item_delete:
     path: /wishlist/items/{id}
     methods: [DELETE]
+    requirements:
+        id: \d+
     defaults:
         _controller: byoan_sylius_wishlist.controller.wishlist_item::deleteAction
         _sylius:
             section: shop
-            repository:
-                method: findOneByIdAndWishlist
+            repository: &owned_item
+                method: ["expr:service('byoan_sylius_wishlist.context.wishlist')", getOwnedItem]
                 arguments:
                     - $id
-                    - "expr:service('byoan_sylius_wishlist.context.wishlist').getWishlist()"
-            redirect: byoan_sylius_wishlist_shop_wishlist_show
+            redirect: *back
             flash: byoan_sylius_wishlist.item_removed
 
 byoan_sylius_wishlist_shop_wishlist_item_add_to_cart:
     path: /wishlist/items/{id}/add-to-cart
     methods: [POST]
+    requirements:
+        id: \d+
     defaults:
         _controller: byoan_sylius_wishlist.controller.wishlist_item::updateAction
         _sylius:
@@ -57,12 +178,22 @@ byoan_sylius_wishlist_shop_wishlist_item_add_to_cart:
             event: add_to_cart
             form: Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemType
             template: "@ByoanSyliusWishlistPlugin/shop/wishlist/invalid_request.html.twig"
-            repository:
-                method: findOneByIdAndWishlist
-                arguments:
-                    - $id
-                    - "expr:service('byoan_sylius_wishlist.context.wishlist').getWishlist()"
-            redirect:
-                route: byoan_sylius_wishlist_shop_wishlist_show
-                parameters: {}
+            repository: *owned_item
+            redirect: *back
             flash: byoan_sylius_wishlist.item_added_to_cart
+
+byoan_sylius_wishlist_shop_wishlist_item_move:
+    path: /wishlist/items/{id}/move
+    methods: [PUT]
+    requirements:
+        id: \d+
+    defaults:
+        _controller: byoan_sylius_wishlist.controller.wishlist_item::updateAction
+        _sylius:
+            section: shop
+            event: move
+            form: Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemMoveType
+            template: "@ByoanSyliusWishlistPlugin/shop/wishlist/invalid_request.html.twig"
+            repository: *owned_item
+            redirect: *back
+            flash: byoan_sylius_wishlist.item_moved

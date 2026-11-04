@@ -1,0 +1,43 @@
+{% set wishlists = hookable_metadata.context.wishlists %}
+
+<div class="container mb-5">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>{{ 'byoan_sylius_wishlist.ui.name'|trans }}</th>
+                    <th>{{ 'byoan_sylius_wishlist.ui.items'|trans }}</th>
+                    <th class="text-end">{{ 'sylius.ui.actions'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wishlist in wishlists %}
+                    {% set url = wishlist.id ? path('byoan_sylius_wishlist_shop_wishlist_show', {id: wishlist.id}) : path('byoan_sylius_wishlist_shop_wishlist_show_default') %}
+                    <tr {{ sylius_test_html_attribute('wishlist', wishlist.name) }}>
+                        <td>
+                            <a class="link-reset fw-medium" href="{{ url }}">{{ wishlist.name }}</a>
+                            {% if wishlist.default %}
+                                <span class="badge text-bg-secondary ms-1">{{ 'byoan_sylius_wishlist.ui.default'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ wishlist.items.count }}</td>
+                        <td>
+                            <div class="d-flex justify-content-end align-items-center gap-2">
+                                {% if wishlist.id %}
+                                    <a class="btn btn-sm btn-outline-secondary" href="{{ path('byoan_sylius_wishlist_shop_wishlist_update', {id: wishlist.id}) }}" {{ sylius_test_html_attribute('wishlist-rename') }}>{{ 'byoan_sylius_wishlist.ui.rename'|trans }}</a>
+                                {% endif %}
+                                {% if wishlist.id and not wishlist.default %}
+                                    {% set set_default_form = byoan_sylius_wishlist_set_default_form(wishlist) %}
+                                    {{ form_start(set_default_form) }}
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap" {{ sylius_test_html_attribute('wishlist-set-default') }}>{{ 'byoan_sylius_wishlist.ui.set_as_default'|trans }}</button>
+                                    {{ form_end(set_default_form) }}
+                                    {{ component('sylius_shop:delete_modal', {id: wishlist.id, path: path('byoan_sylius_wishlist_shop_wishlist_delete', {id: wishlist.id}), label: 'byoan_sylius_wishlist.ui.delete'}) }}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,7 @@
+{% set form = byoan_sylius_wishlist_create_form() %}
+
+<div class="container mb-4">
+    {{ form_start(form, {attr: {novalidate: 'novalidate', class: 'col-12 col-md-6'}}) }}
+        {% include '@ByoanSyliusWishlistPlugin/shop/wishlist/_form_fields.html.twig' with { form: form, submit_label: 'byoan_sylius_wishlist.ui.create_wishlist' } only %}
+    {{ form_end(form) }}
+</div>

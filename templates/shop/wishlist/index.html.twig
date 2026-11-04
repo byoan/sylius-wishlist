@@ -1,0 +1,7 @@
+{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+
+{% block title %}{{ 'byoan_sylius_wishlist.ui.my_wishlists'|trans }} | {{ parent() }}{% endblock %}
+
+{% block content %}
+    {% hook 'byoan_sylius_wishlist.shop.wishlist.index' with { wishlists } %}
+{% endblock %}

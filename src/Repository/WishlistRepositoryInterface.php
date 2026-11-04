@@ -13,9 +13,11 @@ use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
 /** @extends RepositoryInterface<WishlistInterface> */
 interface WishlistRepositoryInterface extends RepositoryInterface
 {
-    public function findDefaultByCustomerAndChannel(CustomerInterface $customer, ChannelInterface $channel): ?WishlistInterface;
+    /** @return list<WishlistInterface> */
+    public function findByCustomerAndChannel(CustomerInterface $customer, ChannelInterface $channel): array;
 
-    public function findDefaultByTokenAndChannel(string $token, ChannelInterface $channel): ?WishlistInterface;
+    /** @return list<WishlistInterface> */
+    public function findByTokenAndChannel(string $token, ChannelInterface $channel): array;
 
     /** @return list<WishlistInterface> */
     public function findByToken(string $token): array;

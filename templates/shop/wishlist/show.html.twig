@@ -1,6 +1,6 @@
 {% extends '@SyliusShop/shared/layout/base.html.twig' %}
 
-{% block title %}{{ 'byoan_sylius_wishlist.ui.my_wishlist'|trans }} | {{ parent() }}{% endblock %}
+{% block title %}{{ wishlist.name }} | {{ parent() }}{% endblock %}
 
 {% block content %}
     {% hook 'byoan_sylius_wishlist.shop.wishlist.show' with { wishlist } %}

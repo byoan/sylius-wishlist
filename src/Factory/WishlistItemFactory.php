@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Byoan\SyliusWishlistPlugin\Factory;
 
 use Byoan\SyliusWishlistPlugin\Context\WishlistContextInterface;
+use Byoan\SyliusWishlistPlugin\Entity\WishlistInterface;
 use Byoan\SyliusWishlistPlugin\Entity\WishlistItemInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Resource\Factory\FactoryInterface;
@@ -23,11 +24,11 @@ final readonly class WishlistItemFactory implements WishlistItemFactoryInterface
         return $this->decoratedFactory->createNew();
     }
 
-    public function createForVariant(ProductVariantInterface $variant): WishlistItemInterface
+    public function createForVariant(ProductVariantInterface $variant, ?WishlistInterface $wishlist = null): WishlistItemInterface
     {
         $item = $this->createNew();
         $item->setVariant($variant);
-        $item->setWishlist($this->wishlistContext->getWishlistForNewItem());
+        $item->setWishlist($wishlist ?? $this->wishlistContext->getWishlistForNewItem());
 
         return $item;
     }

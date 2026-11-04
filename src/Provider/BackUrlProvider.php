@@ -8,8 +8,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
- * Where to return after adding from a product page or listing. The resource controller's plain
- * referer redirect fails when the header is missing and follows it to any host.
+ * Where to return after a wishlist action, which can start from a product page, a listing or any
+ * of the shopper's wishlists. The resource controller's plain referer redirect fails when the
+ * header is missing and follows it to any host.
  */
 final readonly class BackUrlProvider
 {
@@ -28,7 +29,7 @@ final readonly class BackUrlProvider
             return $referer;
         }
 
-        return $this->urlGenerator->generate('byoan_sylius_wishlist_shop_wishlist_show', [
+        return $this->urlGenerator->generate('byoan_sylius_wishlist_shop_wishlist_show_default', [
             '_locale' => $request?->getLocale(),
         ]);
     }

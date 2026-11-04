@@ -33,6 +33,7 @@ services:
             - '@byoan_sylius_wishlist.context.guest_token_storage'
             - '@byoan_sylius_wishlist.repository.wishlist'
             - '@byoan_sylius_wishlist.factory.default_wishlist'
+            - '@byoan_sylius_wishlist.factory.wishlist'
         tags:
             - { name: kernel.reset, method: reset }
     Byoan\SyliusWishlistPlugin\Context\WishlistContextInterface: '@byoan_sylius_wishlist.context.wishlist'
@@ -72,6 +73,28 @@ services:
             - '@byoan_sylius_wishlist.factory.wishlist_item'
     Byoan\SyliusWishlistPlugin\Transfer\GuestWishlistTransferInterface: '@byoan_sylius_wishlist.transfer.guest_wishlist'
 
+    Byoan\SyliusWishlistPlugin\Form\Type\WishlistType:
+        arguments:
+            - '%byoan_sylius_wishlist.model.wishlist.class%'
+            - ['sylius']
+        tags:
+            - { name: form.type }
+
+    Byoan\SyliusWishlistPlugin\Form\Type\WishlistSetDefaultType:
+        arguments:
+            - '%byoan_sylius_wishlist.model.wishlist.class%'
+            - ['sylius']
+        tags:
+            - { name: form.type }
+
+    Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemMoveType:
+        arguments:
+            - '%byoan_sylius_wishlist.model.wishlist_item.class%'
+            - ['sylius']
+            - '@byoan_sylius_wishlist.context.wishlist'
+        tags:
+            - { name: form.type }
+
     Byoan\SyliusWishlistPlugin\Form\Type\WishlistItemType:
         arguments:
             - '%byoan_sylius_wishlist.model.wishlist_item.class%'
@@ -102,10 +125,21 @@ services:
             - '@byoan_sylius_wishlist.checker.availability'
             - '@byoan_sylius_wishlist.cart.adder'
             - '@sylius.context.channel'
+            - '@byoan_sylius_wishlist.repository.wishlist_item'
         tags:
             - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_create, method: preCreate }
+            - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_move, method: preMove }
             - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_delete, method: preDelete }
             - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_add_to_cart, method: preAddToCart }
+
+    byoan_sylius_wishlist.listener.wishlist:
+        class: Byoan\SyliusWishlistPlugin\EventListener\WishlistListener
+        arguments:
+            - '@byoan_sylius_wishlist.context.wishlist'
+            - '@byoan_sylius_wishlist.repository.wishlist'
+        tags:
+            - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist.pre_delete, method: preDelete }
+            - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist.pre_set_as_default, method: preSetAsDefault }
 
     byoan_sylius_wishlist.listener.admin_menu:
         class: Byoan\SyliusWishlistPlugin\Menu\AdminMenuListener
@@ -134,4 +168,4 @@ services:
             - '@byoan_sylius_wishlist.cart.adder'
             - '@byoan_sylius_wishlist.form.factory'
             - '@sylius.context.channel'
-            - '@router'
+            - '@byoan_sylius_wishlist.provider.back_url'

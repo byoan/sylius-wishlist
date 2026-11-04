@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<constraint-mapping
+    xmlns="http://symfony.com/schema/dic/constraint-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping http://symfony.com/schema/dic/services/constraint-mapping-1.0.xsd"
+>
+    <class name="Byoan\SyliusWishlistPlugin\Entity\Wishlist">
+        <constraint name="Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity">
+            <option name="fields">
+                <value>customer</value>
+                <value>channel</value>
+                <value>name</value>
+            </option>
+            <option name="errorPath">name</option>
+            <option name="message">byoan_sylius_wishlist.wishlist.name.unique</option>
+            <option name="groups">sylius</option>
+        </constraint>
+        <constraint name="Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity">
+            <option name="fields">
+                <value>token</value>
+                <value>channel</value>
+                <value>name</value>
+            </option>
+            <option name="errorPath">name</option>
+            <option name="message">byoan_sylius_wishlist.wishlist.name.unique</option>
+            <option name="groups">sylius</option>
+        </constraint>
+        <property name="name">
+            <constraint name="NotBlank">
+                <option name="normalizer">trim</option>
+                <option name="message">byoan_sylius_wishlist.wishlist.name.not_blank</option>
+                <option name="groups">sylius</option>
+            </constraint>
+            <constraint name="Length">
+                <option name="max">255</option>
+                <option name="maxMessage">byoan_sylius_wishlist.wishlist.name.max_length</option>
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
+    </class>
+</constraint-mapping>

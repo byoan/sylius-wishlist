@@ -1,3 +1,25 @@
+{% set wishlist = hookable_metadata.context.wishlist %}
+
 <div class="container mt-5 mb-4">
-    <h1 {{ sylius_test_html_attribute('wishlist-header') }}>{{ 'byoan_sylius_wishlist.ui.my_wishlist'|trans }}</h1>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <h1 class="mb-0" {{ sylius_test_html_attribute('wishlist-header') }}>{{ wishlist.name }}</h1>
+        <div class="d-flex align-items-center gap-2">
+            {% if wishlist.id %}
+                <a class="btn btn-sm btn-outline-secondary" href="{{ path('byoan_sylius_wishlist_shop_wishlist_update', {id: wishlist.id}) }}" {{ sylius_test_html_attribute('wishlist-rename') }}>{{ 'byoan_sylius_wishlist.ui.rename'|trans }}</a>
+            {% endif %}
+            {% if wishlist.id and not wishlist.default %}
+                {{ component('sylius_shop:delete_modal', {id: wishlist.id, path: path('byoan_sylius_wishlist_shop_wishlist_delete', {id: wishlist.id}), label: 'byoan_sylius_wishlist.ui.delete'}) }}
+            {% endif %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ path('byoan_sylius_wishlist_shop_wishlist_index') }}" {{ sylius_test_html_attribute('wishlist-manage') }}>{{ 'byoan_sylius_wishlist.ui.manage_wishlists'|trans }}</a>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills" {{ sylius_test_html_attribute('wishlist-tabs') }}>
+        {% for entry in byoan_sylius_wishlist_lists() %}
+            {% set url = entry.id ? path('byoan_sylius_wishlist_shop_wishlist_show', {id: entry.id}) : path('byoan_sylius_wishlist_shop_wishlist_show_default') %}
+            <li class="nav-item">
+                <a class="nav-link {{ entry is same as(wishlist) ? 'active' }}" href="{{ url }}">{{ entry.name }} ({{ entry.items.count }})</a>
+            </li>
+        {% endfor %}
+    </ul>
 </div>

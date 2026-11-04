@@ -7,6 +7,7 @@ namespace Byoan\SyliusWishlistPlugin\Controller\Shop;
 use Byoan\SyliusWishlistPlugin\Cart\WishlistCartAdderInterface;
 use Byoan\SyliusWishlistPlugin\Context\WishlistContextInterface;
 use Byoan\SyliusWishlistPlugin\Form\Factory\WishlistFormFactoryInterface;
+use Byoan\SyliusWishlistPlugin\Provider\BackUrlProvider;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
@@ -14,7 +15,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * The one wishlist action the resource controller cannot do: it acts on a selection rather than a
@@ -27,26 +28,30 @@ final readonly class AddSelectedItemsToCartAction
         private WishlistCartAdderInterface $cartAdder,
         private WishlistFormFactoryInterface $formFactory,
         private ChannelContextInterface $channelContext,
-        private UrlGeneratorInterface $urlGenerator,
+        private BackUrlProvider $backUrlProvider,
     ) {
     }
 
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, string $id): Response
     {
-        $wishlist = $this->wishlistContext->getWishlist();
+        $wishlist = $this->wishlistContext->getOwnedWishlist($id);
+        if (null === $wishlist) {
+            throw new NotFoundHttpException(\sprintf('You have no wishlist with id "%s".', $id));
+        }
+
         /** @var ChannelInterface $channel */
         $channel = $this->channelContext->getChannel();
 
         // The choices are the wishlist's available variants, so anything else fails validation.
         $form = $this->formFactory->createSelectionForm($wishlist, $channel)->handleRequest($request);
         if (!$form->isSubmitted() || !$form->isValid()) {
-            return $this->redirect($request, 'error', 'byoan_sylius_wishlist.selection_invalid');
+            return $this->redirectWithFlash($request, 'error', 'byoan_sylius_wishlist.selection_invalid');
         }
 
         /** @var list<string> $selectedCodes */
         $selectedCodes = $form->get('variants')->getData() ?? [];
         if ([] === $selectedCodes) {
-            return $this->redirect($request, 'info', 'byoan_sylius_wishlist.nothing_selected');
+            return $this->redirectWithFlash($request, 'info', 'byoan_sylius_wishlist.nothing_selected');
         }
 
         $variants = [];
@@ -66,21 +71,14 @@ final readonly class AddSelectedItemsToCartAction
             $this->flash($request, 'error', 'byoan_sylius_wishlist.items_not_added_to_cart', ['%names%' => $this->names($result->rejected)]);
         }
 
-        return $this->redirectToWishlist($request);
+        return new RedirectResponse($this->backUrlProvider->getUrl());
     }
 
-    private function redirect(Request $request, string $type, string $message): RedirectResponse
+    private function redirectWithFlash(Request $request, string $type, string $message): RedirectResponse
     {
         $this->flash($request, $type, $message);
 
-        return $this->redirectToWishlist($request);
-    }
-
-    private function redirectToWishlist(Request $request): RedirectResponse
-    {
-        return new RedirectResponse($this->urlGenerator->generate('byoan_sylius_wishlist_shop_wishlist_show', [
-            '_locale' => $request->getLocale(),
-        ]));
+        return new RedirectResponse($this->backUrlProvider->getUrl());
     }
 
     /** @param array<string, string> $parameters */

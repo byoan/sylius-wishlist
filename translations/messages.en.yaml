@@ -8,15 +8,26 @@ byoan_sylius_wishlist:
         availability: Availability
         available: Available
         continue_shopping: Continue shopping
+        create_wishlist: Create wishlist
         default: Default
         default_wishlist_name: My wishlist
+        delete: Delete
         empty: Your wishlist is empty.
         in_wishlist: In your wishlist
         invalid_request: Your request could not be processed. Please try again.
         items: Items
+        manage_wishlists: Manage wishlists
+        more_wishlists: Add to another wishlist
+        move: Move
+        move_to: Move to...
         my_wishlist: My wishlist
+        my_wishlists: My wishlists
+        name: Name
         remove: Remove
+        rename: Rename
+        rename_wishlist: Rename wishlist
         select: Select
+        set_as_default: Set as default
         unavailable: Unavailable
         wishlist: Wishlist
         wishlists: Wishlists

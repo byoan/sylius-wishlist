@@ -9,3 +9,10 @@ byoan_sylius_wishlist:
     items_not_added_to_cart: 'Could not be added to your cart: %names%. They may be unavailable or out of stock.'
     nothing_selected: Select at least one product to add to your cart.
     selection_invalid: Your wishlist has changed. Please review it and try again.
+    item_moved: The product has been moved to the other wishlist.
+    item_moved_already_present: The product has been moved to the other wishlist (it was already there).
+    wishlist_created: The wishlist has been created.
+    wishlist_deleted: The wishlist has been deleted.
+    wishlist_not_deletable: Your default wishlist cannot be deleted.
+    wishlist_renamed: The wishlist has been renamed.
+    wishlist_set_as_default: Your default wishlist has been changed.
