@@ -13,3 +13,4 @@ interfaces, service ids, route names, Twig hook names and configuration keys.
 - Multiple named wishlists for customers and guests: create, view, rename and delete.
 - Choose the destination wishlist when adding a product, and move products between wishlists.
 - Change which wishlist is the default.
+- Shop API for wishlists and their items, for customers and guests.

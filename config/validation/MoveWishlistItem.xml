@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<constraint-mapping
+    xmlns="http://symfony.com/schema/dic/constraint-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping http://symfony.com/schema/dic/services/constraint-mapping-1.0.xsd"
+>
+    <class name="Byoan\SyliusWishlistPlugin\Api\Input\MoveWishlistItem">
+        <property name="targetWishlistId">
+            <constraint name="NotNull">
+                <option name="message">byoan_sylius_wishlist.wishlist_item.target_wishlist_id.not_null</option>
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
+    </class>
+</constraint-mapping>

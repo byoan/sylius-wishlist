@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+
+<serializer
+    xmlns="http://symfony.com/schema/dic/serializer-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/serializer-mapping https://symfony.com/schema/dic/serializer-mapping/serializer-mapping-1.0.xsd"
+>
+    <class name="Byoan\SyliusWishlistPlugin\Entity\Wishlist">
+        <attribute name="id">
+            <group>byoan:shop:wishlist:index</group>
+            <group>byoan:shop:wishlist:show</group>
+        </attribute>
+        <attribute name="name">
+            <group>byoan:shop:wishlist:index</group>
+            <group>byoan:shop:wishlist:show</group>
+            <group>byoan:shop:wishlist:create</group>
+            <group>byoan:shop:wishlist:update</group>
+        </attribute>
+        <attribute name="default">
+            <group>byoan:shop:wishlist:index</group>
+            <group>byoan:shop:wishlist:show</group>
+        </attribute>
+        <attribute name="token">
+            <group>byoan:shop:wishlist:index</group>
+            <group>byoan:shop:wishlist:show</group>
+        </attribute>
+        <attribute name="items">
+            <group>byoan:shop:wishlist:show</group>
+        </attribute>
+        <attribute name="createdAt">
+            <group>byoan:shop:wishlist:index</group>
+            <group>byoan:shop:wishlist:show</group>
+        </attribute>
+        <attribute name="updatedAt">
+            <group>byoan:shop:wishlist:index</group>
+            <group>byoan:shop:wishlist:show</group>
+        </attribute>
+    </class>
+</serializer>

@@ -17,10 +17,22 @@ services:
             - '@byoan_sylius_wishlist.context.wishlist'
     Byoan\SyliusWishlistPlugin\Factory\WishlistItemFactoryInterface: '@byoan_sylius_wishlist.custom_factory.wishlist_item'
 
-    byoan_sylius_wishlist.context.guest_token_storage:
+    byoan_sylius_wishlist.context.guest_token_storage.session:
         class: Byoan\SyliusWishlistPlugin\Context\SessionGuestTokenStorage
         arguments:
             - '@request_stack'
+
+    byoan_sylius_wishlist.context.guest_token_storage.header:
+        class: Byoan\SyliusWishlistPlugin\Context\HeaderGuestTokenStorage
+        arguments:
+            - '@request_stack'
+
+    byoan_sylius_wishlist.context.guest_token_storage:
+        class: Byoan\SyliusWishlistPlugin\Context\SectionAwareGuestTokenStorage
+        arguments:
+            - '@sylius.section_resolver.uri_based'
+            - '@byoan_sylius_wishlist.context.guest_token_storage.session'
+            - '@byoan_sylius_wishlist.context.guest_token_storage.header'
     Byoan\SyliusWishlistPlugin\Context\GuestTokenStorageInterface: '@byoan_sylius_wishlist.context.guest_token_storage'
 
     # Public: the routes call it through service() expressions.
@@ -64,6 +76,12 @@ services:
             - '@byoan_sylius_wishlist.checker.availability'
             - '%sylius.form.type.add_to_cart.validation_groups%'
     Byoan\SyliusWishlistPlugin\Cart\WishlistCartAdderInterface: '@byoan_sylius_wishlist.cart.adder'
+
+    byoan_sylius_wishlist.mover.wishlist_item:
+        class: Byoan\SyliusWishlistPlugin\Mover\WishlistItemMover
+        arguments:
+            - '@byoan_sylius_wishlist.repository.wishlist_item'
+    Byoan\SyliusWishlistPlugin\Mover\WishlistItemMoverInterface: '@byoan_sylius_wishlist.mover.wishlist_item'
 
     byoan_sylius_wishlist.transfer.guest_wishlist:
         class: Byoan\SyliusWishlistPlugin\Transfer\GuestWishlistTransfer
@@ -125,7 +143,7 @@ services:
             - '@byoan_sylius_wishlist.checker.availability'
             - '@byoan_sylius_wishlist.cart.adder'
             - '@sylius.context.channel'
-            - '@byoan_sylius_wishlist.repository.wishlist_item'
+            - '@byoan_sylius_wishlist.mover.wishlist_item'
         tags:
             - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_create, method: preCreate }
             - { name: kernel.event_listener, event: byoan_sylius_wishlist.wishlist_item.pre_move, method: preMove }
@@ -169,3 +187,56 @@ services:
             - '@byoan_sylius_wishlist.form.factory'
             - '@sylius.context.channel'
             - '@byoan_sylius_wishlist.provider.back_url'
+
+    byoan_sylius_wishlist.api.doctrine.orm.query_extension.shop.shopper_based:
+        class: Byoan\SyliusWishlistPlugin\Doctrine\ORM\QueryExtension\Shop\ShopperBasedExtension
+        arguments:
+            - '@sylius.section_resolver.uri_based'
+            - '@sylius.context.channel'
+            - '@sylius.context.customer'
+            - '@byoan_sylius_wishlist.context.guest_token_storage'
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection }
+            - { name: api_platform.doctrine.orm.query_extension.item }
+
+    byoan_sylius_wishlist.api.state_provider.new_wishlist:
+        class: Byoan\SyliusWishlistPlugin\Api\StateProvider\NewWishlistProvider
+        arguments:
+            - '@byoan_sylius_wishlist.context.wishlist'
+        tags:
+            - { name: api_platform.state_provider }
+
+    byoan_sylius_wishlist.api.state_processor.delete_wishlist:
+        class: Byoan\SyliusWishlistPlugin\Api\StateProcessor\DeleteWishlistProcessor
+        arguments:
+            - '@api_platform.doctrine.orm.state.remove_processor'
+        tags:
+            - { name: api_platform.state_processor }
+
+    byoan_sylius_wishlist.api.state_processor.add_wishlist_item:
+        class: Byoan\SyliusWishlistPlugin\Api\StateProcessor\AddWishlistItemProcessor
+        arguments:
+            - '@byoan_sylius_wishlist.context.wishlist'
+            - '@byoan_sylius_wishlist.custom_factory.wishlist_item'
+            - '@byoan_sylius_wishlist.repository.wishlist'
+            - '@sylius.repository.product_variant'
+            - '@byoan_sylius_wishlist.checker.availability'
+            - '@sylius.context.channel'
+        tags:
+            - { name: api_platform.state_processor }
+
+    byoan_sylius_wishlist.api.state_processor.move_wishlist_item:
+        class: Byoan\SyliusWishlistPlugin\Api\StateProcessor\MoveWishlistItemProcessor
+        arguments:
+            - '@byoan_sylius_wishlist.context.wishlist'
+            - '@byoan_sylius_wishlist.mover.wishlist_item'
+        tags:
+            - { name: api_platform.state_processor }
+
+    byoan_sylius_wishlist.api.serializer.wishlist_item_normalizer:
+        class: Byoan\SyliusWishlistPlugin\Api\Serializer\WishlistItemNormalizer
+        arguments:
+            - '@byoan_sylius_wishlist.checker.availability'
+            - '@sylius.section_resolver.uri_based'
+        tags:
+            - { name: serializer.normalizer, priority: 64 }

@@ -35,6 +35,10 @@ final class ByoanSyliusWishlistExtension extends AbstractResourceExtension imple
 
         $this->registerResources('byoan_sylius_wishlist', 'doctrine/orm', $config['resources'], $container);
         $this->prependDoctrineMigrations($container);
+
+        $container->prependExtensionConfig('api_platform', [
+            'mapping' => ['paths' => [\dirname(__DIR__, 2) . '/config/api_platform']],
+        ]);
     }
 
     protected function getMigrationsNamespace(): string

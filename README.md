@@ -72,3 +72,52 @@ available.
   mapped superclasses.
 - **Services:** decorate the services through their interfaces.
 - **Storefront and admin pages:** use the `byoan_sylius_wishlist.*` Twig hooks.
+
+## API
+
+The shop API exposes the same wishlists as the storefront, under `/api/v2/shop`. The Sylius API has to
+be enabled with `sylius_api.enabled: true`. Interactive documentation is at `/api/v2/docs`.
+
+| Method | Endpoint | Operation | Success |
+|---|---|---|---|
+| `GET` | `/wishlists` | List the shopper's wishlists | 200 |
+| `POST` | `/wishlists` | Create a wishlist: `{"name": "Birthday"}` | 201 |
+| `GET` | `/wishlists/{id}` | Get a wishlist and its items | 200 |
+| `PATCH` | `/wishlists/{id}` | Rename a wishlist: `{"name": "Birthday Ideas"}` | 200 |
+| `DELETE` | `/wishlists/{id}` | Delete a wishlist | 204 |
+| `POST` | `/wishlists/{id}/items` | Add a product: `{"productVariantCode": "T_SHIRT-variant-0"}` | 201 |
+| `GET` | `/wishlists/{wishlistId}/items/{id}` | Get an item | 200 |
+| `DELETE` | `/wishlists/{wishlistId}/items/{id}` | Remove an item | 204 |
+| `POST` | `/wishlists/{wishlistId}/items/{id}/move` | Move an item: `{"targetWishlistId": 12}` | 200 |
+
+`PATCH` requests use `Content-Type: application/merge-patch+json`. Other requests with a body use
+`application/json` or `application/ld+json`.
+
+Errors: `404` for a wishlist that does not exist or belongs to someone else, `422` for invalid input,
+and `409` for a product already in the wishlist or an attempt to delete the default wishlist.
+
+Items report `productVariantCode`, `productVariantName`, `productCode`, `productName` and `available`.
+A product that cannot be bought stays in the response with `available: false`.
+
+**Customers** authenticate with the native Sylius token:
+
+```sh
+curl -X POST http://localhost:8080/api/v2/shop/customers/token \
+  -H 'Content-Type: application/json' \
+  -d '{"email": "customer@example.com", "password": "secret"}'
+
+curl http://localhost:8080/api/v2/shop/wishlists -H 'Authorization: Bearer <token>'
+```
+
+**Guests** send no credentials. Creating a guest's first wishlist returns a `token`, which identifies
+that guest in later requests through the `X-Wishlist-Token` header:
+
+```sh
+curl -X POST http://localhost:8080/api/v2/shop/wishlists \
+  -H 'Content-Type: application/json' -d '{"name": "My Favorites"}'
+
+curl http://localhost:8080/api/v2/shop/wishlists -H 'X-Wishlist-Token: <token>'
+```
+
+Registering through the API does not transfer a guest's wishlists. Only storefront registration does.
+

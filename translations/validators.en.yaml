@@ -4,3 +4,8 @@ byoan_sylius_wishlist:
             max_length: The wishlist name cannot be longer than {{ limit }} characters.
             not_blank: Please enter a wishlist name.
             unique: You already have a wishlist with this name.
+    wishlist_item:
+        product_variant_code:
+            not_blank: Please provide a product variant code.
+        target_wishlist_id:
+            not_null: Please provide the id of the target wishlist.
